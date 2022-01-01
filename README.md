@@ -41,6 +41,14 @@ We start it with
 R -d lldb
 ```
 
+### Note
+Below, we use the LLDB `break command` and specify the breakpoint in each with the number 1.
+We can 
+
++ omit this to refer to the most recently created breakpoing, or
++ specify the number of a different break point.
+
+
 
 ## The Manual Way
 
