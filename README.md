@@ -126,8 +126,11 @@ Process 6649 resuming
 We see the values. 
 They are not displayed in an easy to read manner.
 We can do some text processing to transform them into a more convenient form.
-However, we can learn more about LLDB's scripting language to see if we can format the output 
+However, we can learn more about LLDB's commands, formatting and scripting language to see if we can format the output 
 better, hide the commands and the continue and 'Process ... remaining' messages.
+See [here](https://lldb.llvm.org/use/variable.html)
+
+
 Alternatively, we can switch to using Python and the LLDB API to which it has bindings.
 
 
@@ -269,6 +272,7 @@ break comm add 1 --python-function sexp.itemTypes
 Now we are ready to return to the R process, call `load()` and we will
 see the output at the top of this document.
 
+
 ## Reloading the Module
 
 ```
@@ -283,3 +287,52 @@ the new `sexp.itemType`. This is because
 in our call to register our Python function with  `--python-function` as the command fpr the callback,
 LLDB created a wrapper function. So when this wrapper function is called, it then looks for
 sexp.itemType and finds the new one.
+
+
+
+
+## Collecting the Information in Python Data Structures
+
+Rather than printing the results, we can collect the information in Python
+tuples/arrays, data.frames, etc.
+
+We use [sexp_global.py](sexp_global.py) in this  example.
+
+
+In our module, we define a module-level global variable, 
+```python
+data = []
+```
+
+In our `itemTypes` function, instead of printing the results, we append a tuple to `data`
+```python
+data.append([ty, depth])
+```
+
+We load it as we did sexp.py above.
+```
+script
+import sexp_global
+```
+
+We register the sexp_global.itemTypes as a callback command with
+```
+break command add 1 --python-function sexp_global.itemTypes
+```
+
+
+To get the results after one or more hits to this breakpoint (or other also using this function),
+we drop back to LLDB and run the `script` command to enter the Python interpreter.
+Then we can access the results with 
+```python
+sexp_global.data
+```
+
+
+## Resettting
+
+We will often want to reinitialize the data to restart the collection.
+We added a `reset` method to sexp_global.py
+```python
+sexp_global.reset()
+```
