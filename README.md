@@ -9,7 +9,7 @@ the values of (SEXP) `type`, `hasattr`, `hastag` along with the value of `R_Read
 
 For example, the 
 ```
-load("sampleRDA/i.rda")
+load("i.rda")
 sexp type = 2 depth = 0 hastag = 1 hasattr = 0
 sexp type = 1 depth = 1 hastag = 0 hasattr = 0
 sexp type = 9 depth = 2 hastag = 0 hasattr = 0
@@ -72,7 +72,7 @@ break list
 ```
 The text of the command should appear.
 
-We can now return to the R process and run our load() command.
+We can now return to the R process and run our `load()` command.
 We get a lot of output:
 ```
 (lldb)  print type
@@ -194,7 +194,7 @@ after you enter the DONE command. This is frustrating.
 ## Using a Module
 
 We don't want to have to enter these commands each time we set the command for the breakpoint.
-Instead, we would like to tell LLDB to use an existing python function.
+Instead, we would like to tell LLDB to use an existing Python function.
 We can do this by 
 
 1. putting the function in a module
@@ -263,6 +263,6 @@ importlib.reaload(sexp)
 ```
 This is all we need to do.  The next call to our breakpoint command will call
 the new `sexp.itemType`. This is because 
-in our call to register our python function with  --python-function as the command fpr the callback,
+in our call to register our Python function with  `--python-function` as the command fpr the callback,
 LLDB created a wrapper function. So when this wrapper function is called, it then looks for
 sexp.itemType and finds the new one.
