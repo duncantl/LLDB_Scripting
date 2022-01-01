@@ -33,6 +33,15 @@ sexp type = 254 depth = 0 hastag = 0 hasattr = 0
 
 
 
+## Running R under the Debugger
+
+We assume you have a debuggable version of R.
+We start it with
+```sh
+R -d lldb
+```
+
+
 ## The Manual Way
 
 We can of course set a breakpoint just after the call to `UnpackFlags`, i.e., at the `switch`
