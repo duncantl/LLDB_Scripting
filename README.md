@@ -203,13 +203,16 @@ frame.GetThread().GetProcess().Continue()
 ```
 Clearly returning False is simpler.
 
-### Warning!
+
+---
+**NOTE**
 Your Python commands should not contain % characters. If they do,
 you will probably get the message
 ```
 No command attached to breakpoint.
 ```
 after you enter the DONE command. This is frustrating.
+---
 
 ## Using a Module
 
