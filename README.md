@@ -222,7 +222,8 @@ We can do this by
 1. setting the function as the command callback
 
 ### Creating the Module 
-We open an empty file sexp.py and define the function
+
+We open an empty file [sexp.py](sexp.py) and define the function
 ```python
 def itemTypes(frame, bp_loc, dict):
    ty = frame.FindVariable("type").GetValue()
@@ -234,10 +235,9 @@ The signature is important and must be as show.
 
 
 ### Loading the Module
-Next we have to 
 
 
-If you put this sexp.py file in a directory in which Python searches for modules,
+If you put this [sexp.py](sexp.py) file in a directory in which Python searches for modules,
 LLDB's python will find it. If not, we will have to add the directory to the Python module path.
 We can do that in LLDB's Python.
 We enter the interactive python with the LLDB command `script`:
@@ -329,10 +329,17 @@ sexp_global.data
 ```
 
 
-## Resettting
+## Resettting the Global Variable(s)
 
 We will often want to reinitialize the data to restart the collection.
 We added a `reset` method to sexp_global.py
 ```python
 sexp_global.reset()
+```
+
+The `reset` function is defined as 
+```python
+def reset():
+	global data
+	data = []
 ```
