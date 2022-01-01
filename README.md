@@ -232,7 +232,7 @@ sys.path.append(r'/Users/duncan/Book/HackingREngine/RDAInfo/RDAXDR/')
 ```
 
 Once Python knows how to find our module, we simply import it.
-```
+```python
 import sexp
 ```
 
@@ -244,7 +244,7 @@ the command callback.
 We set the breakpoint's command to our Python function with the LLDB command
 ```
 break comm add 1 --python-function sexp.itemTypes
-``
+```
 
 
 ## Using the Breakpoint Function
