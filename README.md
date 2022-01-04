@@ -206,14 +206,16 @@ Clearly returning False is simpler.
 
 ---
 **NOTE**
-Your Python commands should not contain % characters. If they do,
-you will probably get the message
+Your Python commands cannot contain any syntax errors. If they do, you 
+ will probably get the message
 
 ```
 No command attached to breakpoint.
 ```
 
 after you enter the DONE command. This is frustrating.
+
+Try the commands in a function definition in a Python session to test they are parsed correctly.
 
 ---
 
