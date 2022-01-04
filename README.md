@@ -217,6 +217,9 @@ after you enter the DONE command. This is frustrating.
 
 Try the commands in a function definition in a Python session to test they are parsed correctly.
 
+If you issue them at the Python prompt, they will be evaluated and the relevant variables and
+modules are not likely to be available, leading to different errors.
+
 ---
 
 ## Using a Module
