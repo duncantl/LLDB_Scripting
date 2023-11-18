@@ -291,7 +291,7 @@ see the output at the top of this document.
 ```
 ```python
 import importlib
-importlib.reaload(sexp)
+importlib.reload(sexp)
 ```
 This is all we need to do.  The next call to our breakpoint command will call
 the new `sexp.itemType`. This is because 
@@ -354,3 +354,97 @@ def reset():
 	global data
 	data = []
 ```
+
+
+
+
+# Collecting .External2 Calls
+
+In another project, we found that a lot of time was spent in calls to .External2.
+This could be many calls to one routine or to many different routines.
+We cannot use `trace()` to monitor the calls to `.External2()` as it is .Primitive function.
+One way to collect the names of the routines being called is using lldb.
+
+`.External2()` maps to do_External in C code. See R_FunTab in names.c.
+
+We wrote the python module external.py <!-- in ~/Ranswers/Heise --> below
+to intercept all calls to do_External.
+This evaluates the C expression 
+```c
+R_CHAR(STRING_ELT(Rf_deparse1s(CAR(CDR(call))), 0))
+````
+that we could invoke manually if we had a breakpoint on do_External, i.e., evaluating it with call **expression**.
+
+This gets the name of the routine being invoked and increments the corresponding entry in a
+dictionary, checking to see it is already there or not.
+
+```python
+import lldb
+
+counts = {}
+
+def update(frame, bp_loc, dict):
+    options = lldb.SBExpressionOptions()
+    options.SetFetchDynamicValue(True)
+    pname = frame.EvaluateExpression("call R_CHAR(STRING_ELT(Rf_deparse1s(CAR(CDR(call))), 0))", options) # .GetValue()
+    name = pname.GetSummary()  
+    ncalls = 1
+    if name in counts:
+        ncalls = counts[name] + 1
+    counts[name] = ncalls
+    return(False)
+
+def reset():
+    global counts
+    counts = {}
+```
+
+We load the module with
+```
+script
+Python Interactive Interpreter. To exit, type 'quit()', 'exit()' or Ctrl-D.
+>>> import external
+>>> ^D
+```
+
+Then we set the breakpoint and then add the breakpoint command
+```lldb
+break set -n do_External
+break command add 1 --python-function external.update
+```
+
+Then we run the code that calls .External2
+```r
+source("script.R")
+```
+
+At the end of this, we examine and export the dictionary so we can read it in R:
+```
+>>> import json
+>>> json.dumps(external.counts)
+'{"\\"C_termsform\\"": 12, "\\"C_modelframe\\"": 9, "\\"C_compcases\\"": 53, "\\"vctrs_new_data_frame\\"": 2951, "\\"rlang_ext_capturearginfo\\"": 1700, "\\"rlang_ext2_eval\\"": 600, "\\"rlang_ext_arg_match0\\"": 250, "\\"vctrs_type_common\\"": 100, "\\"vctrs_cast_common\\"": 100, "\\"vctrs_c\\"": 2050, "\\"vctrs_recycle_common\\"": 200, "\\"magrittr_pipe\\"": 50, "\\"rlang_ext2_call2\\"": 1000, "\\"rlang_ext_dots_values\\"": 400, "\\"rlang_ext2_exec\\"": 800, "\\"rlang_ext2_eval_tidy\\"": 50, "\\"vctrs_cbind\\"": 150, "\\"vctrs_rbind\\"": 51, "\\"C_modelmatrix\\"": 5}'
+```
+
+We write this to a file with:
+```
+with open('ExternalCalls.json', 'w') as outfile:
+    json.dump(external.counts, outfile)
+```
+
+We can then read it into R where we are working to analyze the code.
+
+
+### Issue
+The external.update function causes the lldb prompt to be displayed at each call.
+This causes problems with emacs as it overflows the buffer's undo ability.
+Instead, we run it in a regular terminal.  We need to solve this issue.
+
+
+
+# References
+
++ [LLDB Python Interface](https://lldb.llvm.org/use/python-reference.html)
+
++ For examples of evaluating a C expression from Python, see 
+  + [external.py](~/Ranswers/Heise/) local for now.
+  + [here](https://www.programcreek.com/python/example/126402/lldb.SBExpressionOptions)
